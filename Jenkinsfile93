@@ -6,6 +6,7 @@ node {
   stage('2MavenBuild'){
    sh "${mavenHome}/bin/mvn package"
  }
+ /*
  stage('3CodeQuality'){
    sh "${mavenHome}/bin/mvn sonar:sonar"
  }
@@ -31,4 +32,5 @@ Build is done.
 
 Sydney.''', recipientProviders: [developers(), contributor(), upstreamDevelopers()], subject: 'Build Status', to: 'sydneyconwuasomba@gmail.com'
   }
+  */
 }
