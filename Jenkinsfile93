@@ -1,0 +1,34 @@
+node {
+  def mavenHome = tool name: 'maven3.9.1'
+  stage('1codeclone'){
+     git 'https://github.com/sydneyebuka/maven-web-application'
+  }
+  stage('2MavenBuild'){
+   sh "${mavenHome}/bin/mvn package"
+ }
+ stage('3CodeQuality'){
+   sh "${mavenHome}/bin/mvn sonar:sonar"
+ }
+ stage('4Upload2Nexus'){
+   sh "${mavenHome}/bin/mvn deploy"
+ }
+ stage('5Deploy2UAT'){
+   deploy adapters: [tomcat9(credentialsId: 'tomcat9-credentials', path: '', url: 'http://34.204.5.98:8080/')], contextPath: null, war: 'target/*.war'
+ }
+ stage('6Manualapproval'){
+    sh "echo 'ready for review' "
+    timeout(time:5, unit:'HOURS') {
+    input message: 'Application ready for deployment, Please review and approve'
+      }
+  }
+ stage('7Deploy2Prod'){
+   deploy adapters: [tomcat9(credentialsId: 'tomcat9-credentials', path: '', url: 'http://34.204.5.98:8080/')], contextPath: null, war: 'target/*.war'
+ } 
+ stage('8emailNotify'){
+    emailext body: '''Hello Team,
+
+Build is done.
+
+Sydney.''', recipientProviders: [developers(), contributor(), upstreamDevelopers()], subject: 'Build Status', to: 'sydneyconwuasomba@gmail.com'
+  }
+}
